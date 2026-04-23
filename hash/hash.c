@@ -2,12 +2,18 @@
 #include "hash.h"
 
 int hash(int id) {
-    return id % TABLE_SIZE;
+    // Negatif ID'lere karsi onlem
+    return (id < 0 ? -id : id) % TABLE_SIZE;
 }
 
 void insertNode(HashTable* ht, Node* node) {
-    int index = hash(node->id);
+    // Oncelikle bu ID zaten var mi kontrol etmeliyiz (Veri tutarliligi)
+    if (getNode(ht, node->id) != NULL) {
+        return; // Veya bir hata mesaji dondurulebilir
+    }
 
+    int index = hash(node->id);
+    // Chaining: Yeni dugumu listenin basina ekle
     node->next = ht->table[index];
     ht->table[index] = node;
 }
