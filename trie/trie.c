@@ -15,7 +15,6 @@ void insertTrie(TrieNode* root, char* word) {
     TrieNode* temp = root;
 
     for (int i = 0; word[i]; i++) {
-        // Artik her karakteri kendi ASCII degeriyle indeksliyoruz
         unsigned char index = (unsigned char)word[i];
 
         if (!temp->children[index])
@@ -24,4 +23,17 @@ void insertTrie(TrieNode* root, char* word) {
         temp = temp->children[index];
     }
     temp->isEnd = 1;
+}
+
+int searchTrie(TrieNode* root, char* word) {
+    TrieNode* temp = root;
+
+    for (int i = 0; word[i]; i++) {
+        unsigned char index = (unsigned char)word[i];
+        if (!temp->children[index]) {
+            return 0; // kelime yok
+        }
+        temp = temp->children[index];
+    }
+    return temp->isEnd; // kelime bitişi varsa true
 }
