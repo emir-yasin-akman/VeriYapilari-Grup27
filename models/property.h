@@ -7,4 +7,7 @@ typedef struct Property {
     struct Property* next;
 } Property;
 
+void addProperty(Property** head, char* key, char* value);
+char* getProperty(Property* head, char* key);
+
 #endif
