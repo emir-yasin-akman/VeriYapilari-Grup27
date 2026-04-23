@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "graph.h"
 #include "../queue/queue.h"
@@ -10,7 +11,6 @@ void addEdge(HashTable* ht, int src, int dest, char* relation) {
     Node* source = getNode(ht, src);
     Node* destination = getNode(ht, dest);
 
-    // Her iki düğümün de var olduğundan emin olalım
     if (!source || !destination) return;
 
     Edge* newEdge = (Edge*)malloc(sizeof(Edge));
@@ -18,28 +18,33 @@ void addEdge(HashTable* ht, int src, int dest, char* relation) {
 
     newEdge->target_id = dest;
     strcpy(newEdge->relation, relation);
-    strcpy(newEdge->date, "2026"); // Sabit tarih veya sistem saati eklenebilir
 
-    // Yeni kenarı listenin başına ekle
+    // Sistem tarihini ekle
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    snprintf(newEdge->date, sizeof(newEdge->date), "%02d-%02d-%04d",
+             tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+
     newEdge->next = source->edges;
     source->edges = newEdge;
 }
 
-// ---------- BFS (Breadth First Search) ----------
-// Yeni dinamik Queue yapısına uygun hale getirildi
+// ---------- BFS ----------
 void BFS(HashTable* ht, int start_id) {
-    int visited[TABLE_SIZE * 2] = {0}; // Basit bir ziyaret tablosu
+    int* visited = (int*)calloc(TABLE_SIZE, sizeof(int));
+    if (!visited) return;
 
     Queue* q = createQueue();
     Node* startNode = getNode(ht, start_id);
 
     if (!startNode) {
-        free(q);
+        freeQueue(q);
+        free(visited);
         return;
     }
 
     enqueue(q, startNode);
-    visited[start_id % (TABLE_SIZE * 2)] = 1;
+    visited[hash(start_id)] = 1;
 
     printf("Starting BFS from Node %d:\n", start_id);
 
@@ -49,74 +54,17 @@ void BFS(HashTable* ht, int start_id) {
 
         Edge* edge = current->edges;
         while (edge != NULL) {
-            if (!visited[edge->target_id % (TABLE_SIZE * 2)]) {
+            if (!visited[hash(edge->target_id)]) {
                 Node* neighbor = getNode(ht, edge->target_id);
                 if (neighbor) {
-                    visited[edge->target_id % (TABLE_SIZE * 2)] = 1;
+                    visited[hash(edge->target_id)] = 1;
                     enqueue(q, neighbor);
                 }
             }
             edge = edge->next;
         }
     }
-    
-    // Kuyruk yapısını bellekten temizle (İçindeki düğümleri değil, sadece kuyruk düğümlerini)
-    while(!isEmpty(q)) dequeue(q);
-    free(q);
-}
 
-// ---------- DFS (Depth First Search) ----------
-void DFS_util(HashTable* ht, int id, int visited[]) {
-    visited[id % (TABLE_SIZE * 2)] = 1;
-    Node* node = getNode(ht, id);
-    if (!node) return;
-
-    printf("Visited Node: %d (Type: %s)\n", node->id, node->type);
-
-    Edge* edge = node->edges;
-    while (edge != NULL) {
-        if (!visited[edge->target_id % (TABLE_SIZE * 2)]) {
-            DFS_util(ht, edge->target_id, visited);
-        }
-        edge = edge->next;
-    }
-}
-
-void DFS(HashTable* ht, int start_id) {
-    int visited[TABLE_SIZE * 2] = {0};
-    printf("Starting DFS from Node %d:\n", start_id);
-    DFS_util(ht, start_id, visited);
-}
-
-// ---------- FREE GRAPH (Memory Management) ----------
-void freeGraph(HashTable* ht) {
-    if (!ht) return;
-
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        Node* currentNode = ht->table[i];
-        
-        while (currentNode != NULL) {
-            // 1. Özellikleri temizle
-            Property* currentProp = currentNode->properties;
-            while (currentProp != NULL) {
-                Property* nextProp = currentProp->next;
-                free(currentProp);
-                currentProp = nextProp;
-            }
-
-            // 2. İlişkileri temizle
-            Edge* currentEdge = currentNode->edges;
-            while (currentEdge != NULL) {
-                Edge* nextEdge = currentEdge->next;
-                free(currentEdge);
-                currentEdge = nextEdge;
-            }
-
-            // 3. Düğümü temizle ve sonrakine geç
-            Node* tempNode = currentNode;
-            currentNode = currentNode->next; // Hash collision listesindeki sonraki düğüm
-            free(tempNode);
-        }
-        ht->table[i] = NULL;
-    }
+    freeQueue(q);
+    free(visited);
 }
