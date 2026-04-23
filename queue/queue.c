@@ -1,28 +1,34 @@
+#include <stdlib.h>
 #include "queue.h"
 
-void initQueue(Queue* q) {
-    q->front = q->rear = -1;
+Queue* createQueue() {
+    Queue* q = (Queue*)malloc(sizeof(Queue));
+    q->front = q->rear = NULL;
+    return q;
+}
+
+void enqueue(Queue* q, Node* node) {
+    QueueNode* temp = (QueueNode*)malloc(sizeof(QueueNode));
+    temp->data = node;
+    temp->next = NULL;
+    if (q->rear == NULL) {
+        q->front = q->rear = temp;
+        return;
+    }
+    q->rear->next = temp;
+    q->rear = temp;
+}
+
+Node* dequeue(Queue* q) {
+    if (q->front == NULL) return NULL;
+    QueueNode* temp = q->front;
+    Node* node = temp->data;
+    q->front = q->front->next;
+    if (q->front == NULL) q->rear = NULL;
+    free(temp);
+    return node;
 }
 
 int isEmpty(Queue* q) {
-    return q->front == -1;
-}
-
-void enqueue(Queue* q, int value) {
-    if (q->rear == 99) return;
-
-    if (q->front == -1) q->front = 0;
-
-    q->items[++q->rear] = value;
-}
-
-int dequeue(Queue* q) {
-    int item = q->items[q->front];
-
-    if (q->front == q->rear)
-        q->front = q->rear = -1;
-    else
-        q->front++;
-
-    return item;
+    return q->front == NULL;
 }

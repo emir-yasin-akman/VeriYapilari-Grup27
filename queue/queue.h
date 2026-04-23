@@ -1,14 +1,21 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-typedef struct Queue {
-    int items[100];
-    int front, rear;
+#include "node.h"
+
+// Kuyruk elemanlari icin bagli liste yapisi
+typedef struct QueueNode {
+    Node* data;
+    struct QueueNode* next;
+} QueueNode;
+
+typedef struct {
+    QueueNode *front, *rear;
 } Queue;
 
-void initQueue(Queue* q);
+Queue* createQueue();
+void enqueue(Queue* q, Node* node);
+Node* dequeue(Queue* q);
 int isEmpty(Queue* q);
-void enqueue(Queue* q, int value);
-int dequeue(Queue* q);
 
 #endif
