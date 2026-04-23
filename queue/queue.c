@@ -1,34 +1,59 @@
 #include <stdlib.h>
 #include "queue.h"
 
+// Kuyrugu baslat
 Queue* createQueue() {
     Queue* q = (Queue*)malloc(sizeof(Queue));
-    q->front = q->rear = NULL;
+    if (q) {
+        q->front = q->rear = NULL;
+    }
     return q;
 }
 
+// Kuyruga eleman ekle (Dinamik bellek ayirma)
 void enqueue(Queue* q, Node* node) {
-    QueueNode* temp = (QueueNode*)malloc(sizeof(QueueNode));
-    temp->data = node;
-    temp->next = NULL;
+    if (!q || !node) return;
+
+    QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
+    if (!newNode) return; // Bellek dolulugu kontrolu
+
+    newNode->data = node;
+    newNode->next = NULL;
+
     if (q->rear == NULL) {
-        q->front = q->rear = temp;
+        q->front = q->rear = newNode;
         return;
     }
-    q->rear->next = temp;
-    q->rear = temp;
+
+    q->rear->next = newNode;
+    q->rear = newNode;
 }
 
+// Kuyruktan eleman cikar ve bellegi temizle
 Node* dequeue(Queue* q) {
-    if (q->front == NULL) return NULL;
+    if (!q || q->front == NULL) return NULL;
+
     QueueNode* temp = q->front;
-    Node* node = temp->data;
+    Node* nodeData = temp->data;
+
     q->front = q->front->next;
-    if (q->front == NULL) q->rear = NULL;
-    free(temp);
-    return node;
+
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+
+    free(temp); // Sadece kuyruk dugumunu temizle, veriyi (Node) koru
+    return nodeData;
 }
 
 int isEmpty(Queue* q) {
-    return q->front == NULL;
+    return (q == NULL || q->front == NULL);
+}
+
+// Opsiyonel: Kuyruk tamamen bittiginde temizlik
+void freeQueue(Queue* q) {
+    while (!isEmpty(q)) {
+        dequeue(q);
+    }
+    free(q);
 }

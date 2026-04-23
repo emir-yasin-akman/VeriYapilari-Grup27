@@ -1,27 +1,33 @@
 #include <stdlib.h>
 #include "hash.h"
 
+// Negatif ID degerlerine karsi mutlak deger kontrolu
 int hash(int id) {
-    // Negatif ID'lere karsi onlem
     return (id < 0 ? -id : id) % TABLE_SIZE;
 }
 
 void insertNode(HashTable* ht, Node* node) {
-    // Oncelikle bu ID zaten var mi kontrol etmeliyiz (Veri tutarliligi)
+    if (!ht || !node) return;
+
+    // Veri tutarliligi: Bu ID zaten var mi kontrol et
     if (getNode(ht, node->id) != NULL) {
-        return; // Veya bir hata mesaji dondurulebilir
+        return; 
     }
 
     int index = hash(node->id);
-    // Chaining: Yeni dugumu listenin basina ekle
+
+    // Chaining: Yeni dugumu ilgili indeksteki listenin basina ekle
     node->next = ht->table[index];
     ht->table[index] = node;
 }
 
 Node* getNode(HashTable* ht, int id) {
+    if (!ht) return NULL;
+
     int index = hash(id);
     Node* temp = ht->table[index];
 
+    // Indeksteki bagli listeyi tara
     while (temp != NULL) {
         if (temp->id == id)
             return temp;
