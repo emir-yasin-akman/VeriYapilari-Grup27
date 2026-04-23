@@ -11,4 +11,6 @@ void BFS(HashTable* ht, int start_id);
 // DFS
 void DFS(HashTable* ht, int start_id);
 
+void freeGraph(HashTable* ht);
+
 #endif

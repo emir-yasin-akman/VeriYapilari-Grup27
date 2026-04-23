@@ -37,6 +37,9 @@ int main() {
 
     printf("\nDFS:\n");
     DFS(&ht, 1);
+    
+    printf("Program sonlandiriliyor, bellek temizleniyor...\n");
+    freeGraph(&ht);
 
     return 0;
 }
