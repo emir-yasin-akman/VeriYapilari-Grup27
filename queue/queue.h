@@ -1,7 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "node.h"
+#include "../models/node.h"
 
 // Kuyruk elemanlari icin bagli liste yapisi
 typedef struct QueueNode {
@@ -17,5 +17,6 @@ Queue* createQueue();
 void enqueue(Queue* q, Node* node);
 Node* dequeue(Queue* q);
 int isEmpty(Queue* q);
+void freeQueue(Queue* q);
 
 #endif

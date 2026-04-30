@@ -11,6 +11,9 @@ void BFS(HashTable* ht, int start_id);
 // DFS
 void DFS(HashTable* ht, int start_id);
 
+// Triadic closure / friend recommendations
+void recommendFriends(HashTable* ht, int node_id, int minMutualFriends);
+
 void freeGraph(HashTable* ht);
 
 #endif
