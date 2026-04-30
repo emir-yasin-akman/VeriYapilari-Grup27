@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "hash/hash.h"
+#include "graph/graph.h"
+#include "models/property.h"
+
+int main() {
+    HashTable ht = {0};
+
+    // Node 1
+    Node* n1 = (Node*)malloc(sizeof(Node));
+    n1->id = 1;
+    strcpy(n1->type, "User");
+    n1->edges = NULL;
+    n1->properties = NULL;
+
+    addProperty(&n1->properties, "name", "Ali");
+
+    // Node 2
+    Node* n2 = (Node*)malloc(sizeof(Node));
+    n2->id = 2;
+    strcpy(n2->type, "User");
+    n2->edges = NULL;
+    n2->properties = NULL;
+
+    addProperty(&n2->properties, "name", "Veli");
+
+    insertNode(&ht, n1);
+    insertNode(&ht, n2);
+
+    addEdge(&ht, 1, 2, "FRIEND");
+
+    printf("BFS:\n");
+    BFS(&ht, 1);
+
+    printf("\nDFS:\n");
+    DFS(&ht, 1);
+    
+    printf("Program sonlandiriliyor, bellek temizleniyor...\n");
+    freeGraph(&ht);
+
+    return 0;
+}
