@@ -27,18 +27,36 @@ int main() {
 
     addProperty(&n2->properties, "name", "Veli");
 
+    // Node 3
+    Node* n3 = (Node*)malloc(sizeof(Node));
+    n3->id = 3;
+    strcpy(n3->type, "User");
+    n3->edges = NULL;
+    n3->properties = NULL;
+
+    addProperty(&n3->properties, "name", "Ayse");
+
     insertNode(&ht, n1);
     insertNode(&ht, n2);
+    insertNode(&ht, n3);
 
+    // Karşılıklı arkadaşlık (undirected friendship) ilişkileri
     addEdge(&ht, 1, 2, "FRIEND");
+    addEdge(&ht, 2, 1, "FRIEND");
+    addEdge(&ht, 1, 3, "FRIEND");
+    addEdge(&ht, 3, 1, "FRIEND");
 
     printf("BFS:\n");
     BFS(&ht, 1);
 
     printf("\nDFS:\n");
     DFS(&ht, 1);
+
+    printf("\nTriadic closure recommendations:\n");
+    recommendFriends(&ht, 2, 1);
+    recommendFriends(&ht, 3, 1);
     
-    printf("Program sonlandiriliyor, bellek temizleniyor...\n");
+    printf("Program terminating, memory is being cleaned...\n");
     freeGraph(&ht);
 
     return 0;
