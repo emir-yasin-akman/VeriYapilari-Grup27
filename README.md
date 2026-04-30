@@ -30,7 +30,5 @@ Bu projede, sosyal ağ sistemlerinde kullanılan **property graph veri modeli** 
 
 ---
 
-Gizem Yurtseven: Ara rapor dökümantasyonu, GitHub akış yönetimi ve kod analizi.
-Emir Yasin Akman: Çekirdek veri yapıları ve algoritma implementasyonu.
-
-Emir Yasin Akman: Çekirdek veri yapıları ve algoritma implementasy
+- Gizem Yurtseven: Ara rapor dökümantasyonu, GitHub akış yönetimi ve kod analizi.
+- Emir Yasin Akman: Çekirdek veri yapıları ve algoritma implementasyonu.
