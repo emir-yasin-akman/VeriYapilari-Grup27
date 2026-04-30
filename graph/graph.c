@@ -69,6 +69,47 @@ void BFS(HashTable* ht, int start_id) {
     free(visited);
 }
 
+void filteredBFS(HashTable* ht, int start_id, const char* relation_filter) {
+    int* visited = (int*)calloc(TABLE_SIZE, sizeof(int));
+    if (!visited) return;
+
+    Queue* q = createQueue();
+    Node* startNode = getNode(ht, start_id);
+
+    if (!startNode) {
+        freeQueue(q);
+        free(visited);
+        return;
+    }
+
+    enqueue(q, startNode);
+    visited[hash(start_id)] = 1;
+
+    printf("Starting Filtered BFS from Node %d (Filter: '%s'):\n", start_id, relation_filter);
+
+    while (!isEmpty(q)) {
+        Node* current = dequeue(q);
+        printf("Visited Node: %d (Type: %s)\n", current->id, current->type);
+
+        Edge* edge = current->edges;
+        while (edge != NULL) {
+            // SADECE belirtilen iliski tipine (relation) sahip kenarlari kuyruga ekle
+            if (strcmp(edge->relation, relation_filter) == 0) {
+                if (!visited[hash(edge->target_id)]) {
+                    Node* neighbor = getNode(ht, edge->target_id);
+                    if (neighbor) {
+                        visited[hash(edge->target_id)] = 1;
+                        enqueue(q, neighbor);
+                    }
+                }
+            }
+            edge = edge->next;
+        }
+    }
+    freeQueue(q);
+    free(visited);
+}
+
 static int areConnected(HashTable* ht, int src_id, int dest_id) {
     Node* src = getNode(ht, src_id);
     if (!src) return 0;

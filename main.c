@@ -40,11 +40,28 @@ int main() {
     insertNode(&ht, n2);
     insertNode(&ht, n3);
 
+    // Node 4 - Event (Etkinlik) olusturuyoruz
+    Node* n4 = (Node*)malloc(sizeof(Node));
+    n4->id = 4;
+    strcpy(n4->type, "Event");
+    n4->edges = NULL;
+    n4->properties = NULL;
+    addProperty(&n4->properties, "name", "Bilgisayar Muhendisligi Hackathonu");
+    insertNode(&ht, n4);
+
     // Karşılıklı arkadaşlık (undirected friendship) ilişkileri
     addEdge(&ht, 1, 2, "FRIEND");
     addEdge(&ht, 2, 1, "FRIEND");
     addEdge(&ht, 1, 3, "FRIEND");
     addEdge(&ht, 3, 1, "FRIEND");
+
+    // Ali'yi etkinlige bagla
+    addEdge(&ht, 1, 4, "ATTENDS");
+
+    // Yeni yazdigimiz filtreli aramayi test et
+    printf("\n--- FILTERED BFS TEST ---\n");
+    printf("Ali'nin (Node 1) sadece katildigi etkinlikler ('ATTENDS' filtresi):\n");
+    filteredBFS(&ht, 1, "ATTENDS");
 
     printf("BFS:\n");
     BFS(&ht, 1);
