@@ -16,4 +16,6 @@ void recommendFriends(HashTable* ht, int node_id, int minMutualFriends);
 
 void freeGraph(HashTable* ht);
 
+void filteredBFS(HashTable* ht, int start_id, const char* relation_filter); //30.4.26 tarihinde muratcarikci tarafindan eklendi
+
 #endif
