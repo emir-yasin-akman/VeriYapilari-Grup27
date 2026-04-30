@@ -27,3 +27,10 @@ Bu projede, sosyal ağ sistemlerinde kullanılan **property graph veri modeli** 
 - **Edge.date sabit “2026” idi** → sistem tarihine çevrildi.  
 - **BFS visited dizisi sabit boyutlu idi** → dinamik hale getirildi.  
 - **Queue temizliği karmaşıktı** → `freeQueue()` ile sadeleştirildi.  
+
+---
+
+Gizem Yurtseven: Ara rapor dökümantasyonu, GitHub akış yönetimi ve kod analizi.
+Emir Yasin Akman: Çekirdek veri yapıları ve algoritma implementasyonu.
+
+Emir Yasin Akman: Çekirdek veri yapıları ve algoritma implementasy
