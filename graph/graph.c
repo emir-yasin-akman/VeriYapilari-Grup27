@@ -221,6 +221,67 @@ void recommendFriends(HashTable* ht, int node_id, int minMutualFriends) {
     }
 }
 
+static int countIncomingEdges(HashTable* ht, int node_id) {
+    int count = 0;
+    if (!ht) return count;
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* temp = ht->table[i];
+        while (temp != NULL) {
+            Edge* edge = temp->edges;
+            while (edge != NULL) {
+                if (edge->target_id == node_id) {
+                    count++;
+                }
+                edge = edge->next;
+            }
+            temp = temp->next;
+        }
+    }
+    return count;
+}
+
+int getDegreeCentrality(HashTable* ht, int node_id) {
+    Node* node = getNode(ht, node_id);
+    if (!node) return -1;
+
+    int outDegree = 0;
+    Edge* edge = node->edges;
+    while (edge != NULL) {
+        outDegree++;
+        edge = edge->next;
+    }
+
+    int inDegree = countIncomingEdges(ht, node_id);
+    return outDegree + inDegree;
+}
+
+void printNodeCentrality(HashTable* ht) {
+    if (!ht) return;
+
+    printf("\nNode importance (degree centrality):\n");
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = ht->table[i];
+        while (current != NULL) {
+            int centrality = getDegreeCentrality(ht, current->id);
+            char* name = getProperty(current->properties, "name");
+            if (name) {
+                printf("  - Node %d (%s) [Type: %s]: Degree centrality = %d\n",
+                       current->id,
+                       name,
+                       current->type,
+                       centrality);
+            } else {
+                printf("  - Node %d [Type: %s]: Degree centrality = %d\n",
+                       current->id,
+                       current->type,
+                       centrality);
+            }
+            current = current->next;
+        }
+    }
+}
+
 void freeGraph(HashTable* ht) {
     if (!ht) return;
 
