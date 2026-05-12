@@ -72,6 +72,8 @@ int main() {
     printf("\nTriadic closure recommendations:\n");
     recommendFriends(&ht, 2, 1);
     recommendFriends(&ht, 3, 1);
+
+    printNodeCentrality(&ht);
     
     printf("Program terminating, memory is being cleaned...\n");
     freeGraph(&ht);
