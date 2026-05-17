@@ -174,6 +174,12 @@ void recommendFriends(HashTable* ht, int node_id, int minMutualFriends) {
             Edge* fofEdge = friendNode->edges;
             while (fofEdge != NULL) {
                 int candidateId = fofEdge->target_id;
+                Node* candidateNode = getNode(ht, candidateId);
+                if (!candidateNode || strcmp(candidateNode->type, "User") != 0) {
+                    fofEdge = fofEdge->next;
+                    continue;
+                }
+
                 if (candidateId != node_id && !areConnected(ht, node_id, candidateId)) {
                     int found = 0;
                     for (int i = 0; i < recCount; i++) {
