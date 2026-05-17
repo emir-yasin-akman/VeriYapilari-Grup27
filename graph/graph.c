@@ -288,6 +288,75 @@ void printNodeCentrality(HashTable* ht) {
     }
 }
 
+void findPhotosOfFriendsEvents(HashTable* ht, int start_user_id) {
+    // ADIM 1: Başlangıç düğümünü bul
+    Node* startUser = getNode(ht, start_user_id);
+    if (!startUser) {
+        printf("Hata: Baslangilac kullanici (ID: %d) bulunamadi.\n", start_user_id);
+        return;
+    }
+
+    char* userName = getProperty(startUser->properties, "name");
+    if (!userName) {
+        printf("Hata: Baslangilac kullanici adı bulunamadi.\n");
+        return;
+    }
+
+    printf("\n[Cok Adimli Sorgu]: Multi-step traversal basladi.\n");
+    printf("Baslangic: %s (ID: %d, Type: %s)\n\n", userName, start_user_id, startUser->type);
+
+    // ADIM 2: Arkadaş düğümlerini bul (FRIEND relation)
+    Edge* friendEdge = startUser->edges;
+    while (friendEdge != NULL) {
+        // Sadece FRIEND ilişkisini kontrol et
+        if (strcmp(friendEdge->relation, "FRIEND") == 0) {
+            Node* friendNode = getNode(ht, friendEdge->target_id);
+            if (friendNode && strcmp(friendNode->type, "User") == 0) {
+                char* friendName = getProperty(friendNode->properties, "name");
+                if (friendName) {
+                    printf("%s -(FRIEND)-> Arkadasi: %s", userName, friendName);
+                    printf(" (Kenar Tarihi: %s)\n", friendEdge->date);
+
+                    // ADIM 3: Arkadaşın katıldığı etkinlikleri bul (ATTENDS relation)
+                    Edge* attendsEdge = friendNode->edges;
+                    while (attendsEdge != NULL) {
+                        if (strcmp(attendsEdge->relation, "ATTENDS") == 0) {
+                            Node* eventNode = getNode(ht, attendsEdge->target_id);
+                            if (eventNode && strcmp(eventNode->type, "Event") == 0) {
+                                char* eventName = getProperty(eventNode->properties, "name");
+                                if (eventName) {
+                                    printf("    -(ATTENDS)-> Etkinlik: %s", eventName);
+                                    printf(" (Kenar Tarihi: %s)\n", attendsEdge->date);
+
+                                    // ADIM 4: Etkinliğin fotoğraflarını bul (HAS_PHOTO relation)
+                                    Edge* photoEdge = eventNode->edges;
+                                    while (photoEdge != NULL) {
+                                        if (strcmp(photoEdge->relation, "HAS_PHOTO") == 0) {
+                                            Node* photoNode = getNode(ht, photoEdge->target_id);
+                                            if (photoNode && strcmp(photoNode->type, "Photo") == 0) {
+                                                char* photoName = getProperty(photoNode->properties, "name");
+                                                if (photoName) {
+                                                    printf("        -(HAS_PHOTO)-> Fotograf: %s", photoName);
+                                                    printf(" (Kayit Tarihi: %s)\n", photoEdge->date);
+                                                }
+                                            }
+                                        }
+                                        photoEdge = photoEdge->next;
+                                    }
+                                }
+                            }
+                        }
+                        attendsEdge = attendsEdge->next;
+                    }
+                }
+            }
+        }
+        friendEdge = friendEdge->next;
+    }
+
+    printf("\n[Cok Adimli Sorgu]: Sorgu tamamlandi.\n\n");
+}
+
 void freeGraph(HashTable* ht) {
     if (!ht) return;
 

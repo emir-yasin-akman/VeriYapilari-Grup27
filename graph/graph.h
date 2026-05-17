@@ -22,4 +22,7 @@ void freeGraph(HashTable* ht);
 
 void filteredBFS(HashTable* ht, int start_id, const char* relation_filter); //30.4.26 tarihinde muratcarikci tarafindan eklendi
 
+// Multi-step query: User -> Friends -> Events -> Photos
+void findPhotosOfFriendsEvents(HashTable* ht, int start_user_id);
+
 #endif

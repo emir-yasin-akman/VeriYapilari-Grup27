@@ -49,6 +49,15 @@ int main() {
     addProperty(&n4->properties, "name", "Bilgisayar Muhendisligi Hackathonu");
     insertNode(&ht, n4);
 
+    // Node 5 - Photo (Fotograf) olusturuyoruz
+    Node* n5 = (Node*)malloc(sizeof(Node));
+    n5->id = 5;
+    strcpy(n5->type, "Photo");
+    n5->edges = NULL;
+    n5->properties = NULL;
+    addProperty(&n5->properties, "name", "hackathon_hatirasi.jpg");
+    insertNode(&ht, n5);
+
     // Karşılıklı arkadaşlık (undirected friendship) ilişkileri
     addEdge(&ht, 1, 2, "FRIEND");
     addEdge(&ht, 2, 1, "FRIEND");
@@ -57,6 +66,13 @@ int main() {
 
     // Ali'yi etkinlige bagla
     addEdge(&ht, 1, 4, "ATTENDS");
+
+    // Veli'yi (Node 2) Hackathon'a (Node 4) bağla
+    addEdge(&ht, 2, 4, "ATTENDS");
+
+    // Hackathon'u (Node 4) Fotograf düğümüne (Node 5) bağla
+    addEdge(&ht, 4, 5, "HAS_PHOTO");
+
 
     // Yeni yazdigimiz filtreli aramayi test et
     printf("\n--- FILTERED BFS TEST ---\n");
@@ -74,6 +90,9 @@ int main() {
     recommendFriends(&ht, 3, 1);
 
     printNodeCentrality(&ht);
+
+    // Faz 2: Multi-step query traversal - Ali'nin arkadaşlarının katıldığı etkinliklerdeki fotoğraflar
+    findPhotosOfFriendsEvents(&ht, 1);
     
     printf("Program terminating, memory is being cleaned...\n");
     freeGraph(&ht);
