@@ -385,3 +385,116 @@ void freeGraph(HashTable* ht) {
         ht->table[i] = NULL;
     }
 }
+
+void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int photoCount, int edgeCount) {
+    char* userNames[] = {"Mert", "Asiye", "Doruk", "Melis", "Volkan", "Ceren", "Oguz", "Dilek", "Arda", "Begum", "Kaan", "Sude"};
+    char* eventNames[] = {"Yapay Zeka Hackathonu", "Siber Guvenlik Zirvesi", "C Programlama Kampi", "Veri Bilimi Semineri"};
+    char* photoNames[] = {"profil_resmi.jpg", "kod_ekrani.png", "etkinlik_hatirasi.jpg", "kampus_hayati.png"};
+
+    int userPoolSize = sizeof(userNames) / sizeof(userNames[0]);
+    int eventPoolSize = sizeof(eventNames) / sizeof(eventNames[0]);
+    int photoPoolSize = sizeof(photoNames) / sizeof(photoNames[0]);
+
+    int startId = 100;
+    int currentId = startId;
+
+    // 1. Programatik Dugum Uretimi (Havuzdan rastgele isim atayarak)
+    for (int i = 0; i < userCount; i++) {
+        Node* newUser = (Node*)malloc(sizeof(Node));
+        newUser->id = currentId;
+        strcpy(newUser->type, "User");
+        newUser->edges = NULL;
+        newUser->properties = NULL;
+        
+        char customName[50];
+        snprintf(customName, sizeof(customName), "%s_%d", userNames[rand() % userPoolSize], currentId);
+        addProperty(&newUser->properties, "name", customName);
+        
+        insertNode(ht, newUser);
+        currentId++;
+    }
+
+    for (int i = 0; i < eventCount; i++) {
+        Node* newEvent = (Node*)malloc(sizeof(Node));
+        newEvent->id = currentId;
+        strcpy(newEvent->type, "Event");
+        newEvent->edges = NULL;
+        newEvent->properties = NULL;
+        
+        char customEvent[100];
+        snprintf(customEvent, sizeof(customEvent), "%s (%d)", eventNames[rand() % eventPoolSize], currentId);
+        addProperty(&newEvent->properties, "name", customEvent);
+        
+        insertNode(ht, newEvent);
+        currentId++;
+    }
+
+    for (int i = 0; i < photoCount; i++) {
+        Node* newPhoto = (Node*)malloc(sizeof(Node));
+        newPhoto->id = currentId;
+        strcpy(newPhoto->type, "Photo");
+        newPhoto->edges = NULL;
+        newPhoto->properties = NULL;
+        
+        char customPhoto[50];
+        snprintf(customPhoto, sizeof(customPhoto), "%s_id_%d", photoNames[rand() % photoPoolSize], currentId);
+        addProperty(&newPhoto->properties, "name", customPhoto);
+        
+        insertNode(ht, newPhoto);
+        currentId++;
+    }
+
+    int totalNodesCreated = userCount + eventCount + photoCount;
+
+    // 2. Programatik ve Akilli Kenar (Ilişki) Uretimi
+    int edgesAdded = 0;
+    int maxAttempts = edgeCount * 5;
+    int attempts = 0;
+
+    while (edgesAdded < edgeCount && attempts < maxAttempts) {
+        attempts++;
+        int srcId = startId + (rand() % totalNodesCreated);
+        int destId = startId + (rand() % totalNodesCreated);
+
+        if (srcId == destId) continue;
+
+        Node* srcNode = getNode(ht, srcId);
+        Node* destNode = getNode(ht, destId);
+
+        if (!srcNode || !destNode) continue;
+
+        // Mantiksal Graf Topolojisi Kontrolu
+        if (strcmp(srcNode->type, "User") == 0 && strcmp(destNode->type, "User") == 0) {
+            addEdge(ht, srcId, destId, "FRIEND");
+            edgesAdded++;
+        } 
+        else if (strcmp(srcNode->type, "User") == 0 && strcmp(destNode->type, "Event") == 0) {
+            addEdge(ht, srcId, destId, "ATTENDS");
+            edgesAdded++;
+        } 
+        else if (strcmp(srcNode->type, "Event") == 0 && strcmp(destNode->type, "Photo") == 0) {
+            addEdge(ht, srcId, destId, "HAS_PHOTO");
+            edgesAdded++;
+        }
+    }
+
+    // 3. Performans ve Stress Testi Olcumu
+    clock_t start = clock();
+    for (int id = startId; id < currentId; id++) {
+        getDegreeCentrality(ht, id);
+    }
+    clock_t end = clock();
+    double timeSpent = ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
+
+    // Sonuclarin Terminal Raporu Olarak Basilmasi
+    printf("\n==================================================\n");
+    printf("DINAMIK SENTETIK VERI ENJEKSIYONU VE PERFORMANS RAPORU\n");
+    printf("==================================================\n");
+    printf("Uretilen Kullanici (User) Sayisi : %d\n", userCount);
+    printf("Uretilen Etkinlik (Event) Sayisi : %d\n", eventCount);
+    printf("Uretilen Fotograf (Photo) Sayisi : %d\n", photoCount);
+    printf("Graf Yapisina Eklenen Yeni Kenar  : %d\n", edgesAdded);
+    printf("Toplam Canli Sentetik Dugum      : %d\n", totalNodesCreated);
+    printf("Algoritma Stress Analiz Suresi   : %.4f ms\n", timeSpent);
+    printf("==================================================\n");
+}

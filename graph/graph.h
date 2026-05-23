@@ -25,4 +25,7 @@ void filteredBFS(HashTable* ht, int start_id, const char* relation_filter); //30
 // Multi-step query: User -> Friends -> Events -> Photos
 void findPhotosOfFriendsEvents(HashTable* ht, int start_user_id);
 
+// Synthetic data generation for stress testing and visualization
+void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int photoCount, int edgeCount);
+
 #endif
