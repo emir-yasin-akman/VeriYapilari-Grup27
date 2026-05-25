@@ -448,6 +448,20 @@ void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int pho
 
     // 2. Programatik ve Akilli Kenar (Ilişki) Uretimi
     int edgesAdded = 0;
+    
+    // 2a. Her etkinliğe en az 1 rastgele kullanıcı katılsın (ATTENDS)
+    for (int eId = startId + userCount; eId < startId + userCount + eventCount; eId++) {
+        int randomUserId = startId + (rand() % userCount);
+        addEdge(ht, randomUserId, eId, "ATTENDS");
+        edgesAdded++;
+    }
+
+    // 2b. Her fotoğraf en az 1 rastgele etkinliğe ait olsun (HAS_PHOTO)
+    for (int pId = startId + userCount + eventCount; pId < startId + totalNodesCreated; pId++) {
+        int randomEventId = startId + userCount + (rand() % eventCount);
+        addEdge(ht, randomEventId, pId, "HAS_PHOTO");
+        edgesAdded++;
+    }
     int maxAttempts = edgeCount * 5;
     int attempts = 0;
 
@@ -474,6 +488,10 @@ void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int pho
         } 
         else if (strcmp(srcNode->type, "Event") == 0 && strcmp(destNode->type, "Photo") == 0) {
             addEdge(ht, srcId, destId, "HAS_PHOTO");
+            edgesAdded++;
+        }
+        else if (strcmp(srcNode->type, "User") == 0 && strcmp(destNode->type, "Photo") == 0) {
+            addEdge(ht, srcId, destId, "LIKES");
             edgesAdded++;
         }
     }
