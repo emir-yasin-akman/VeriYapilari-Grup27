@@ -216,6 +216,9 @@ int main() {
     // --- SENTETIK VERI INJEKSIYONU VE DINAMIK GORSELLESTIRILME ---
     generateSyntheticData(&ht, 50, 10, 15, 120);
     
+    // Faz 3 Icin JSON Export
+    exportGraphToJSON(&ht, "graph_data.json");
+    
     printf("Program terminating, memory is being cleaned...\n");
     freeGraph(&ht);
 

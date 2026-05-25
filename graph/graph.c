@@ -498,3 +498,58 @@ void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int pho
     printf("Algoritma Stress Analiz Suresi   : %.4f ms\n", timeSpent);
     printf("==================================================\n");
 }
+
+// JSON Dişa Aktarma Fonksiyonu - Faz 3 İçin
+void exportGraphToJSON(HashTable* ht, const char* filename) {
+    FILE* fp = fopen(filename, "w");
+    if (!fp) {
+        printf("Hata: JSON dosyasi olusturulamadi!\n");
+        return;
+    }
+
+    fprintf(fp, "{\n  \"nodes\": [\n");
+    int firstNode = 1;
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = ht->table[i];
+        while (current != NULL) {
+            if (!firstNode) fprintf(fp, ",\n");
+            
+            char* name = getProperty(current->properties, "name");
+            char safeName[100] = "Unknown";
+            if (name) {
+                // Basit bir escape islemi (JSON kirilmamasi icin)
+                snprintf(safeName, sizeof(safeName), "%s", name);
+            }
+
+            fprintf(fp, "    {\"id\": %d, \"label\": \"%s\", \"group\": \"%s\"}", 
+                    current->id, safeName, current->type);
+            
+            firstNode = 0;
+            current = current->next;
+        }
+    }
+    fprintf(fp, "\n  ],\n  \"edges\": [\n");
+
+    int firstEdge = 1;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = ht->table[i];
+        while (current != NULL) {
+            Edge* edge = current->edges;
+            while (edge != NULL) {
+                if (!firstEdge) fprintf(fp, ",\n");
+                
+                fprintf(fp, "    {\"from\": %d, \"to\": %d, \"label\": \"%s\", \"date\": \"%s\"}", 
+                        current->id, edge->target_id, edge->relation, edge->date);
+                
+                firstEdge = 0;
+                edge = edge->next;
+            }
+            current = current->next;
+        }
+    }
+    fprintf(fp, "\n  ]\n}\n");
+
+    fclose(fp);
+    printf("\n>>> Basarili: Graf verileri '%s' dosyasina aktarildi.\n", filename);
+}
