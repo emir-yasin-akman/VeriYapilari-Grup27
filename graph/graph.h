@@ -28,4 +28,7 @@ void findPhotosOfFriendsEvents(HashTable* ht, int start_user_id);
 // Synthetic data generation for stress testing and visualization
 void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int photoCount, int edgeCount);
 
+// JSON export for Phase 3 visualization
+void exportGraphToJSON(HashTable* ht, const char* filename);
+
 #endif
