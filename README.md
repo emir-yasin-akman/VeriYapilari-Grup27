@@ -1,49 +1,63 @@
-Property Graph Tabanlı Sosyal Ağ Modelleme
+# Property Graph Tabanlı Sosyal Ağ Modelleme
 
-Bu proje, sosyal ağ sistemlerinde kullanılan property graph veri modelinin sadeleştirilmiş bir versiyonu olarak geliştirilmektedir. Projenin temel amacı, ağ üzerindeki varlıklar (düğümler) ve ilişkiler (kenarlar) arasında verimli veri yapıları ve algoritmalar kullanarak çok adımlı sorgular gerçekleştirmektir.
+Bu proje, sosyal ağ sistemlerinde kullanılan "Property Graph" (Özellikli Graf) veri modelinin C programlama dili kullanılarak sıfırdan implemente edilmiş bir versiyonudur. Projenin temel amacı; ağ üzerindeki farklı varlık türleri (Kullanıcı, Fotoğraf, Etkinlik) ve bu varlıkların birbirleriyle olan ilişkileri (Arkadaşlık, Katılım, Beğeni) arasında verimli veri yapıları kullanılarak karmaşık, çok adımlı sorguların ve analitik ölçümlerin gerçekleştirilmesidir.
 
-Faz 1: Mevcut Veri Yapıları ve Gereksinim Uyumluluğu
+---
 
-Faz 1 kapsamında aşağıdaki temel yapılar sıfırdan implemente edilmiş ve başarıyla çalıştırılmıştır:
+## 1. Proje Mimarisi ve Temel Veri Yapıları
 
-Property Graph (Adjacency List): Farklı türde düğümleri (User, Photo, Event) ve özellikli kenarları (FRIEND, LIKES) destekleyen komşuluk listesi yapısı kurulmuştur.
+Proje kapsamında, harici bir kütüphane kullanılmaksızın aşağıdaki temel yapılar dinamik bellek yönetimiyle kurulmuştur:
 
-Karma Tablo (Hash Table): Düğümlere benzersiz ID üzerinden ortalama O(1) sürede erişim sağlanmaktadır.
+* **Property Graph (Komşuluk Listesi):** Farklı türdeki düğümleri (User, Photo, Event) ve özel niteliklere (tarih bilgisi, ilişki türü) sahip kenarları (FRIEND, LIKES, ATTENDS, HAS_PHOTO) zincirleme yöntemiyle destekler.
+* **Karma Tablo (Hash Table):** Çakışmaları zincirleme (chaining) yöntemiyle çözen ve düğümlere benzersiz ID'ler üzerinden ortalama O(1) sürede erişim sağlayan merkezi indeksleme yapısıdır.
+* **Trie (Önek Ağacı):** Metin tabanlı arama, kullanıcı adı önek doğrulama ve otomatik tamamlama işlemleri için graf yapısına entegre edilmiştir.
+* **Kuyruk (Queue):** BFS algoritmasının ve katmanlı taramaların bellek sızıntısı olmadan çalışması için dinamik bir kuyruk mekanizması içerir.
 
-Trie (Önek Ağacı): Metin tabanlı arama ve otomatik tamamlama işlemleri için sisteme dahil edilmiştir.
+---
 
-Kuyruk (Queue): BFS algoritmasının çalışması için dinamik kuyruk yapısı oluşturulmuştur.
+## 2. Gerçekleştirilen Fazlar ve Teknik Özellikler
 
-Temel Algoritmalar: BFS ve DFS tarama algoritmaları graf üzerinde aktif olarak çalışmaktadır.
+### Faz 1: Temel Graf ve Metin Arama Motoru
+* **Dinamik Tarama Algoritmaları:** Graf yapısı üzerinde tarama gerçekleştiren BFS (Genişlik Öncelikli Arama) ve DFS (Derinlik Öncelikli Arama) algoritmaları entegre edilmiştir.
+* **Filtrelenmiş Arama:** Graf üzerinde sadece belirli ilişki türlerini (örneğin sadece ATTENDS ilişkilerini) izleyen filteredBFS fonksiyonu eklenmiştir.
+* **Trie Doğrulama:** Metin tabanlı arama süreçleri optimize edilerek searchTrie mekanizması sisteme dahil edilmiştir.
 
-Bellek Yönetimi: Dinamik bellek kullanımı kontrol altına alınmış, freeGraph ve freeQueue fonksiyonları ile bellek temizliği sağlanmıştır.
+### Faz 2: Gelişmiş Algoritma ve Çok Adımlı Sorgu Modeli
+* **Çok Adımlı Graf Traversal (Multi-step Query):** Bir kullanıcının arkadaşlarını, o arkadaşların katıldığı etkinlikleri ve o etkinliklerde çekilen fotoğrafları ardışık olarak listeleyen hiyerarşik sorgu motoru (findPhotosOfFriendsEvents) implemente edilmiştir.
+* **Triadic Closure (Arkadaş Önerisi):** Ortak arkadaş sayılarını analiz ederek, aralarında doğrudan bağ olmayan kullanıcılara minimum ortak arkadaş eşiğine göre akıllı arkadaş önerileri sunan recommendFriends algoritması eklenmiştir.
+* **Derece Merkeziliği (Degree Centrality):** Düğümlerin giriş ve çıkış kenarlarını hesaplayarak ağ üzerindeki önem derecesini ölçen getDegreeCentrality fonksiyonu sisteme entegre edilmiştir.
 
-Teknik İyileştirmeler ve Düzeltmeler
+### Faz 3: JSON Çıktısı, Görselleştirme Altyapısı ve Stres Testi
+* **JSON Dışa Aktarım Motoru:** Graf yapısını, web arayüzünün (FastAPI ve vis.js) doğrudan okuyabileceği standart bir formatta graph_data.json adıyla dışarı aktarır. Örnek çıktı formatı şu şekildedir:
+  {
+    "nodes": [
+      {"id": 1, "label": "Ali", "group": "User"},
+      {"id": 11, "label": "Bilgisayar Muhendisligi Hackathonu", "group": "Event"}
+    ],
+    "edges": [
+      {"from": 1, "to": 2, "label": "FRIEND", "date": "25-05-2026"}
+    ]
+  }
+* **Dinamik Sentetik Veri Enjeksiyonu:** Sistemin sınırlarını test etmek amacıyla, çalışma zamanında (runtime) dinamik düğüm ve kenar üreten ve milisaniye hassasiyetinde stress analizi raporu sunan generateSyntheticData motoru eklenmiştir.
 
-Geliştirme sürecinde tespit edilen aşağıdaki hatalar giderilmiştir:
+---
 
-Trie arama fonksiyonundaki eksiklik giderilerek searchTrie fonksiyonu eklenmiştir.
+## 3. Teknik İyileştirmeler ve Kritik Hata Düzeltmeleri
 
-Edge.date bilgisi sabit değerden sistem tarihine dönüştürülmüştür.
+1. **Yönsüz Graf Tutarlılığı (Çift Yönlü Arkadaşlık):** FRIEND ilişkisi eklendiğinde grafın yönsüz yapıya uyması için sistem otomatik olarak ters yönlü kenarı (backEdge) veri tekrarı oluşturmadan ekleyecek şekilde güncellenmiştir.
+2. **Dinamik Zaman Yönetimi:** Sabit/statik olarak atanan Edge.date" bilgisi, C dilinin time.h kütüphanesi kullanılarak doğrudan sistemin o anki gerçek tarihiyle (GG-AA-YYYY) güncellenecek hale getirilmiştir.
+3. **Bellek Sızıntısı Optimizasyonu:** visited dizileri calloc ile dinamik hale getirilmiş; program sonlandığında grafın tüm düğüm, kenar ve nitelik haritalarını temizleyen freeGraph fonksiyonu entegre edilmiştir.
 
-BFS visited dizisi dinamik hale getirilerek bellek kullanımı optimize edilmiştir.
+---
 
-Gelecek Planları: Faz 2 ve Faz 3
+## 4. Çalıştırma Talimatları
 
-Projenin sonraki aşamalarında aşağıdaki özelliklerin eklenmesi planlanmaktadır:
+Proje standart C derleyicileri (GCC) ile tam uyumludur. Derlemek ve çalıştırma için terminal üzerinden aşağıdaki komutlar uygulanmalıdır:
 
-Faz 2: Gelişmiş Algoritma ve Sorgu Modeli
+# Projeyi derleme
+gcc main.c hash/hash.c graph/graph.c trie/trie.c queue/queue.c models/property.c -o social_network
 
-Çok Adımlı Sorgular: Kullanıcı -> arkadaşlar -> katıldığı etkinlikler gibi ardışık graf traversal işlemleri gerçekleştirilecektir.
+# Projeyi çalıştırma
+./social_network
 
-Analitik Ölçümler: Arkadaş önerisi mantığı (Triadic closure) ve basit merkezilik ölçümleri sisteme entegre edilecektir.
-
-Performans Analizi: Kullanılan algoritmaların zaman ve uzay karmaşıklıkları analiz edilecektir.
-
-Faz 3: Arayüz ve Görselleştirme
-
-Graf Görselleştirme: Sorgu sonuçları 2D node-link diyagramı olarak gösterilecek, düğüm türleri farklı şekil/renklerle temsil edilecektir.
-
-Etkileşim: Graf üzerindeki bir düğüme tıklandığında, düğümün özellikleri Hash Table üzerinden çekilerek yan panelde sunulacaktır.
-
-Sentetik Veri: Sistem performansını test etmek amacıyla programatik veya GenAI destekli veri üretimi yapılacaktır.
+Çalıştırma sonrasında konsolda algoritmaların analiz çıktıları raporlanacak ve proje klasöründe arayüz için gerekli olan graph_data.json dosyası otomatik olarak üretilecektir.
