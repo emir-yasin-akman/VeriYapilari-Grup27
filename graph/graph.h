@@ -1,34 +1,28 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include "../models/node.h"
 #include "../hash/hash.h"
 
+// Graf Yapısı İçin Temel Fonksiyon Tanımlamaları
 void addEdge(HashTable* ht, int src, int dest, char* relation);
-
-// BFS
 void BFS(HashTable* ht, int start_id);
-
-// DFS
 void DFS(HashTable* ht, int start_id);
 
-// Triadic closure / friend recommendations
-void recommendFriends(HashTable* ht, int node_id, int minMutualFriends);
+// Faz 1: Filtrelenmiş BFS Fonksiyon Tanımı
+void filteredBFS(HashTable* ht, int start_id, const char* relation_filter);
 
-// Simple centrality / node importance measures
+// Analiz ve Öneri Algoritmaları
+void recommendFriends(HashTable* ht, int node_id, int minMutualFriends);
 int getDegreeCentrality(HashTable* ht, int node_id);
 void printNodeCentrality(HashTable* ht);
 
-void freeGraph(HashTable* ht);
-
-void filteredBFS(HashTable* ht, int start_id, const char* relation_filter); //30.4.26 tarihinde muratcarikci tarafindan eklendi
-
-// Multi-step query: User -> Friends -> Events -> Photos
+// Faz 2 & Faz 3: Çok Adımlı Sorgu, Veri Üretimi ve JSON Çıktısı
 void findPhotosOfFriendsEvents(HashTable* ht, int start_user_id);
-
-// Synthetic data generation for stress testing and visualization
 void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int photoCount, int edgeCount);
-
-// JSON export for Phase 3 visualization
 void exportGraphToJSON(HashTable* ht, const char* filename);
 
-#endif
+// Bellek Yönetimi
+void freeGraph(HashTable* ht);
+
+#endif // GRAPH_H
