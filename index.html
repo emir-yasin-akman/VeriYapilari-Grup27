@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sosyal Ağ Graf Görselleştirmesi</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f7f6;
+        }
+        /* Grafın çizileceği sol alan */
+        #mynetwork {
+            width: 75%;
+            height: 100%;
+            border-right: 2px solid #ddd;
+            background-color: #ffffff;
+        }
+        /* Bilgi paneli sağ alan */
+        #sidepanel {
+            width: 25%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #2c3e50;
+            color: white;
+            overflow-y: auto;
+        }
+        h2 { border-bottom: 2px solid #e74c3c; padding-bottom: 10px; }
+        .info-item { margin-bottom: 15px; font-size: 16px; }
+        .info-label { font-weight: bold; color: #f1c40f; }
+    </style>
+</head>
+<body>
+
+    <div id="mynetwork"></div>
+
+    <div id="sidepanel">
+        <h2>Düğüm Bilgileri</h2>
+        <div id="node-info">
+            <p style="color: #bdc3c7;">Graf üzerinden detaylarını görmek istediğiniz bir düğüme (node) tıklayın.</p>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // graph_data.json dosyasını çekiyoruz
+        fetch('graph_data.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("JSON verisi yüklenemedi. Lütfen local server kullandığınızdan emin olun.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Graf ayarları
+                var container = document.getElementById('mynetwork');
+                
+                // Vis.js opsiyonları
+                var options = {
+                    nodes: {
+                        shape: 'dot',
+                        size: 20,
+                        font: { size: 14, color: '#333' },
+                        borderWidth: 2,
+                        shadow: true
+                    },
+                    edges: {
+                        width: 2,
+                        shadow: true,
+                        color: { inherit: 'from' },
+                        smooth: { type: 'continuous' }
+                    },
+                    physics: {
+                        forceAtlas2Based: {
+                            gravitationalConstant: -50,
+                            centralGravity: 0.01,
+                            springLength: 100,
+                            springConstant: 0.08
+                        },
+                        maxVelocity: 50,
+                        solver: 'forceAtlas2Based',
+                        timestep: 0.35,
+                        stabilization: { iterations: 150 }
+                    },
+                    groups: {
+                        // C kodundaki "type" özelliklerine göre renk tanımlamaları yapabiliriz
+                        "Kullanici": { color: { background: '#3498db', border: '#2980b9' } },
+                        "Grup": { color: { background: '#2ecc71', border: '#27ae60' }, shape: 'square' },
+                        "Sayfa": { color: { background: '#e74c3c', border: '#c0392b' }, shape: 'triangle' }
+                    }
+                };
+
+                // Grafı oluştur
+                var network = new vis.Network(container, data, options);
+
+                // Tıklama (Click) Olayı
+                network.on("click", function (params) {
+                    var infoPanel = document.getElementById('node-info');
+                    
+                    if (params.nodes.length > 0) {
+                        var nodeId = params.nodes[0];
+                        // Tıklanan düğümü verilerimiz içinde bul
+                        var clickedNode = data.nodes.find(n => n.id === nodeId);
+                        
+                        if (clickedNode) {
+                            infoPanel.innerHTML = `
+                                <div class="info-item"><span class="info-label">ID:</span> ${clickedNode.id}</div>
+                                <div class="info-item"><span class="info-label">İsim:</span> ${clickedNode.label}</div>
+                                <div class="info-item"><span class="info-label">Tür:</span> ${clickedNode.group || 'Belirtilmemiş'}</div>
+                            `;
+                        }
+                    } else {
+                        // Boş bir yere tıklandıysa paneli temizle
+                        infoPanel.innerHTML = '<p style="color: #bdc3c7;">Graf üzerinden detaylarını görmek istediğiniz bir düğüme (node) tıklayın.</p>';
+                    }
+                });
+            })
+            .catch(error => {
+                document.getElementById('mynetwork').innerHTML = `<h3 style="color:red; padding:20px;">Hata: ${error.message}</h3>`;
+                console.error("Veri yuklenirken hata:", error);
+            });
+    </script>
+</body>
+</html>

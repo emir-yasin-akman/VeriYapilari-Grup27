@@ -498,3 +498,65 @@ void generateSyntheticData(HashTable* ht, int userCount, int eventCount, int pho
     printf("Algoritma Stress Analiz Suresi   : %.4f ms\n", timeSpent);
     printf("==================================================\n");
 }
+
+// JSON dışa aktarma fonksiyonu
+void exportToJSON(HashTable* ht, const char* filename) {
+    if (!ht) return;
+    
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Hata: %s dosyasi olusturulamadi!\n", filename);
+        return;
+    }
+
+    fprintf(file, "{\n");
+    
+    // --- 1. DÜĞÜMLERİ (NODES) YAZDIRMA ---
+    fprintf(file, "  \"nodes\": [\n");
+    int firstNode = 1;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = ht->table[i];
+        while (current != NULL) {
+            if (!firstNode) {
+                fprintf(file, ",\n");
+            }
+            // Düğümün ismini property'lerden çekiyoruz
+            char* name = getProperty(current->properties, "name");
+            if (!name) name = "Bilinmeyen";
+            
+            // Vis.js arayüzü için: id, label (isim) ve group (tür/renk için)
+            fprintf(file, "    { \"id\": %d, \"label\": \"%s\", \"group\": \"%s\" }", current->id, name, current->type);
+            
+            firstNode = 0;
+            current = current->next;
+        }
+    }
+    fprintf(file, "\n  ],\n");
+
+    // --- 2. KENARLARI (EDGES) YAZDIRMA ---
+    fprintf(file, "  \"edges\": [\n");
+    int firstEdge = 1;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Node* current = ht->table[i];
+        while (current != NULL) {
+            Edge* edge = current->edges;
+            while (edge != NULL) {
+                if (!firstEdge) {
+                    fprintf(file, ",\n");
+                }
+                
+                // from: kaynak ID, to: hedef ID, label: ilişki türü (FRIEND, ATTENDS vb.)
+                fprintf(file, "    { \"from\": %d, \"to\": %d, \"label\": \"%s\" }", current->id, edge->target_id, edge->relation);
+                
+                firstEdge = 0;
+                edge = edge->next;
+            }
+            current = current->next;
+        }
+    }
+    fprintf(file, "\n  ]\n");
+    fprintf(file, "}\n");
+
+    fclose(file);
+    printf("Basarili: Graf verileri '%s' dosyasina aktarildi.\n", filename);
+}

@@ -216,6 +216,10 @@ int main() {
     // --- SENTETIK VERI INJEKSIYONU VE DINAMIK GORSELLESTIRILME ---
     generateSyntheticData(&ht, 50, 10, 15, 120);
     
+    // Arayüz için verileri JSON formatında dışa aktar
+    printf("\nArayuz icin JSON dosyasi olusturuluyor...\n");
+    exportToJSON(&ht, "graph_data.json");
+    
     printf("Program terminating, memory is being cleaned...\n");
     freeGraph(&ht);
 
