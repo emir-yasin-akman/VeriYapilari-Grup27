@@ -105,7 +105,7 @@
                     else if (node.group === 'Event') { shape = 'star'; color = '#2ecc71'; }
                     
                     // Bağlantı sayısını düğümün 'value' özelliğine atayarak otomatik ölçeklenmesini sağlıyoruz
-                    let connectionCount = nodeConnectionCounts[node.id] || 1;
+                    let connectionCount = nodeConnectionCounts[node.id] || 0;
 
                     return { 
                         ...node, 
