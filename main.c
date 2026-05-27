@@ -5,11 +5,15 @@
 #include "hash/hash.h"
 #include "graph/graph.h"
 #include "models/property.h"
+#include "trie/trie.h"
 
 int main() {
     HashTable ht = {0};
 
-    // --- 10 UNIQUE KULLANICI (USER) DUGUMU ---
+    // --- TRIE KÖK DÜĞÜMÜNÜN BAŞLATILMASI (FAZ 1 EKSİĞİ) ---
+    TrieNode* trieRoot = createTrieNode();
+
+    // --- 10 UNIQUE KULLANICI (USER) DUGUMU VE TRIE ENTEGRASYONU ---
     Node* u1 = (Node*)malloc(sizeof(Node));
     u1->id = 1;
     strcpy(u1->type, "User");
@@ -17,6 +21,7 @@ int main() {
     u1->properties = NULL;
     addProperty(&u1->properties, "name", "Ali");
     insertNode(&ht, u1);
+    insertTrie(trieRoot, "Ali");
 
     Node* u2 = (Node*)malloc(sizeof(Node));
     u2->id = 2;
@@ -25,6 +30,7 @@ int main() {
     u2->properties = NULL;
     addProperty(&u2->properties, "name", "Veli");
     insertNode(&ht, u2);
+    insertTrie(trieRoot, "Veli");
 
     Node* u3 = (Node*)malloc(sizeof(Node));
     u3->id = 3;
@@ -33,6 +39,7 @@ int main() {
     u3->properties = NULL;
     addProperty(&u3->properties, "name", "Ayse");
     insertNode(&ht, u3);
+    insertTrie(trieRoot, "Ayse");
 
     Node* u4 = (Node*)malloc(sizeof(Node));
     u4->id = 4;
@@ -41,6 +48,7 @@ int main() {
     u4->properties = NULL;
     addProperty(&u4->properties, "name", "Fatma");
     insertNode(&ht, u4);
+    insertTrie(trieRoot, "Fatma");
 
     Node* u5 = (Node*)malloc(sizeof(Node));
     u5->id = 5;
@@ -49,6 +57,7 @@ int main() {
     u5->properties = NULL;
     addProperty(&u5->properties, "name", "Mehmet");
     insertNode(&ht, u5);
+    insertTrie(trieRoot, "Mehmet");
 
     Node* u6 = (Node*)malloc(sizeof(Node));
     u6->id = 6;
@@ -57,6 +66,7 @@ int main() {
     u6->properties = NULL;
     addProperty(&u6->properties, "name", "Zeynep");
     insertNode(&ht, u6);
+    insertTrie(trieRoot, "Zeynep");
 
     Node* u7 = (Node*)malloc(sizeof(Node));
     u7->id = 7;
@@ -65,6 +75,7 @@ int main() {
     u7->properties = NULL;
     addProperty(&u7->properties, "name", "Burak");
     insertNode(&ht, u7);
+    insertTrie(trieRoot, "Burak");
 
     Node* u8 = (Node*)malloc(sizeof(Node));
     u8->id = 8;
@@ -73,6 +84,7 @@ int main() {
     u8->properties = NULL;
     addProperty(&u8->properties, "name", "Ebru");
     insertNode(&ht, u8);
+    insertTrie(trieRoot, "Ebru");
 
     Node* u9 = (Node*)malloc(sizeof(Node));
     u9->id = 9;
@@ -81,6 +93,7 @@ int main() {
     u9->properties = NULL;
     addProperty(&u9->properties, "name", "Cem");
     insertNode(&ht, u9);
+    insertTrie(trieRoot, "Cem");
 
     Node* u10 = (Node*)malloc(sizeof(Node));
     u10->id = 10;
@@ -89,6 +102,7 @@ int main() {
     u10->properties = NULL;
     addProperty(&u10->properties, "name", "Gamze");
     insertNode(&ht, u10);
+    insertTrie(trieRoot, "Gamze");
 
     // --- 4 ETKINLIK (EVENT) DUGUMU ---
     Node* e1 = (Node*)malloc(sizeof(Node));
@@ -220,6 +234,28 @@ int main() {
     exportGraphToJSON(&ht, "graph_data.json");
     
     printf("Program terminating, memory is being cleaned...\n");
+
+    // --- TRIE METİN TABANLI ARAMA KANITI (FAZ 1 EKSİĞİ) ---
+    printf("\n==================================================\n");
+    printf("FAZ 1: TRIE VERI YAPISI METIN TABANLI ARAMA TESTI\n");
+    printf("==================================================\n");
+    
+    char* searchWord1 = "Ali";
+    char* searchWord2 = "Turan";
+
+    if (searchTrie(trieRoot, searchWord1)) {
+        printf(">>> [BAŞARILI]: '%s' ismi Trie yapisi icinde bulundu.\n", searchWord1);
+    } else {
+        printf(">>> [HATA]: '%s' ismi Trie yapisinda bulunamadi.\n", searchWord1);
+    }
+
+    if (searchTrie(trieRoot, searchWord2)) {
+        printf(">>> [HATA]: '%s' ismi Trie yapisi icinde bulundu.\n", searchWord2);
+    } else {
+        printf(">>> [BAŞARILI]: '%s' ismi sistemde yok ve Trie dogru sekilde 'Bulunamadi' dondu.\n", searchWord2);
+    }
+    printf("==================================================\n\n");
+    
     freeGraph(&ht);
 
     return 0;
