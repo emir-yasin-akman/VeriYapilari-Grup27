@@ -42,6 +42,17 @@
             <button id="search-btn" onclick="searchNode()">Bul</button>
         </div>
 
+        <h2>Çok Adımlı Sorgu Modülü (Faz 3)</h2>
+        <div class="filter-group">
+            <p style="margin: 0 0 8px 0; font-size: 0.9em; color: #bdc3c7;">
+                Kullanıcı → Arkadaş → Etkinlik → Fotoğraf akışını simüle et ve detay alanına yazdır.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="multi-step-user-id" placeholder="Başlangıç Kullanıcı ID (Örn: 1)" style="flex: 1; padding: 8px; border: none; border-radius: 4px; outline: none; font-size: 1em; color: #333;">
+                <button id="multi-step-btn" onclick="triggerMultiStepQuery()" style="padding: 8px 15px; background-color: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Sorgula</button>
+            </div>
+        </div>
+        
         <h2>Katman Filtreleri</h2>
         <div class="filter-group">
             <label class="filter-item"><input type="checkbox" id="chk-user" checked onchange="filterGraph()"> 🔵 Kullanıcıları Göster (User)</label>
@@ -250,6 +261,30 @@
             } else {
                 alert("Görünür düğümler arasında eşleşme bulunamadı.");
             }
+        }
+
+        function triggerMultiStepQuery() {
+            if (!nodes) return;
+            const userIdInput = document.getElementById('multi-step-user-id').value.trim();
+            if (!userIdInput) {
+                alert("Lütfen geçerli bir Başlangıç Kullanıcı ID'si girin.");
+                return;
+            }
+            
+            const startNodeId = parseInt(userIdInput);
+            const startNode = nodes.get(startNodeId);
+            
+            if (!startNode || startNode.group !== 'User') {
+                alert(`ID #${startNodeId} olan bir Kullanıcı (User) düğümü graf üzerinde bulunamadı veya şu an filtrelenmiş.`);
+                return;
+            }
+
+            network.selectNodes([startNodeId]);
+            network.focus(startNodeId, { scale: 1.2, animation: { duration: 500 } });
+            network.emit("selectNode", { nodes: [startNodeId] });
+            
+            console.log(`[Çok Adımlı Sorgu Tetiklendi]: Başlangıç Kullanıcı ID: ${startNodeId} (${startNode.label})`);
+            alert(`Çok adımlı sorgu tetiklendi!\nBaşlangıç: ${startNode.label}\n\nBu kullanıcının arkadaş bağlantıları, katıldıkları etkinlikler ve fotoğrafları "Düğüm Özellikleri" yan panelinde listelenmiştir.`);
         }
 
         window.onload = loadGraphData;
