@@ -1,49 +1,72 @@
-# Property Graph Tabanlı Sosyal Ağ Modelleme
+# Property Graph Tabanlı Sosyal Ağ Modelleme ve Sorgulama Aracı (Grup 27)
 
-Bu proje, sosyal ağ sistemlerinde kullanılan property graph veri modelinin sadeleştirilmiş bir versiyonu olarak geliştirilmektedir. Projenin temel amacı, ağ üzerindeki varlıklar (düğümler) ve ilişkiler (kenarlar) arasında verimli veri yapıları ve algoritmalar kullanarak çok adımlı sorgular gerçekleştirmektir.
+Bu proje; sosyal ağ sistemlerinde sıklıkla kullanılan heterojen Property Graph (Özellikli Graf) veri modelinin, modern veri yapıları ve algoritmalar kullanılarak sıfırdan (from scratch) implemente edilmiş basitleştirilmiş bir versiyonudur. Sistem, arka planda yüksek performanslı bir C backend yapısı barındırırken, ön yüzde bu verileri interaktif olarak sunan, sorgulayan ve analiz eden web tabanlı bir görselleştirme arayüzü sunmaktadır.
 
-## Faz 1: Mevcut Veri Yapıları ve Gereksinim Uyumluluğu
+---
 
-Faz 1 kapsamında aşağıdaki temel yapılar sıfırdan implemente edilmiş ve başarıyla çalıştırılmıştır:
+## Proje Mimari Yapısı ve Fazları
 
-- Property Graph (Adjacency List): Farklı türde düğümleri (User, Photo, Event) ve özellikli kenarları (FRIEND, LIKES) destekleyen komşuluk listesi yapısı kurulmuştur.
+Proje, hocanın belirlediği 3 ana fazın gereksinimlerini ve tüm opsiyonel isterleri karşılamaktadır:
 
-- Karma Tablo (Hash Table): Düğümlere benzersiz ID üzerinden ortalama O(1) sürede erişim sağlanmaktadır.
+### Faz 1: Zorunlu Veri Yapıları (Sıfırdan Implementasyon)
+* Heterojen Property Graph: User, Photo ve Event gibi farklı türde düğümleri (Vertex) ve bu düğümler arasındaki ilişkileri (FRIEND, ATTENDS, HAS_PHOTO) yönlü/yönsüz olarak tutan, Komşuluk Listesi (Adjacency List) tabanlı graf yapısı. Kenarlar üzerinde tarih gibi ek özellikler (properties) taşınmaktadır.
+* Hızlı Erişim Karma Tablosu (Hash Table): Graf üzerindeki yüzlerce düğüme benzersiz ID'leri üzerinden ortalama O(1) zaman karmaşıklığında erişim sağlayan özel hash tablosu implementasyonu.
+* Metin Tabanlı Önek Ağacı (Trie): Sosyal ağ içerisindeki kullanıcı isimleri üzerinden hızlı arama ve otomatik tamamlama (autocomplete) işlemlerini gerçekleştiren Trie yapısı.
+* Kuyruk Yapısı (Queue): Graf üzerinde Genişlik Öncelikli Arama (BFS) algoritmalarının veri akışını yönetmek için sıfırdan yazılmış FIFO kuyruk yapısı.
 
-- Trie (Önek Ağacı): Metin tabanlı arama ve otomatik tamamlama işlemleri için sisteme dahil edilmiştir.
+### Faz 2: Gelişmiş Algoritmalar ve Sorgu Modeli
+* Graf Traversal (BFS & DFS): Ağ üzerindeki katmanlı tarama, bağlantı dereceleri hesaplama ve derinlik öncelikli analizler için optimize edilmiş temel arama algoritmaları.
+* Çok Adımlı İlişkisel Sorgu Akışı: Sistem, ardışık graf traversal işlemleri gerçekleştirerek karmaşık ilişkileri zincirleme olarak sorgulayabilir:
+  Kullanıcı -> arkadaşlar -> katıldığı etkinlikler -> bu etkinliklerdeki fotoğraflar
+* Sosyal Ağ Analiz Ölçümleri (Bonus):
+  * Triadic Closure: Ortak arkadaş sayılarını analiz ederek kullanıcılara dinamik arkadaş önerilerinde bulunan öneri algoritması.
+  * Degree Centrality: Düğümlerin bağlantı yoğunluklarını hesaplayarak ağ içerisindeki en önemli ve popüler aktörleri listeleyen merkezilik ölçümü.
+* Dinamik Sentetik Veri Enjeksiyonu (Stress Test): Sistem davranışını, performans sınırlarını ve zaman karmaşıklıklarını ölçmek amacıyla programatik olarak yüzlerce sentetik düğüm ve kenar üreten stress testi motoru.
 
-- Kuyruk (Queue): BFS algoritmasının çalışması için dinamik kuyruk yapısı oluşturulmuştur.
+### Faz 3: Spesifik Arayüz ve İnteraktif Görselleştirme
+* 2D Node-Link Diyagramı: Web arayüzünde vis.js kütüphanesi kullanılarak tüm düğüm türleri farklı renk ve görsel hiyerarşilerle (Kullanıcılar mavi, Etkinlikler yeşil, Fotoğraflar turuncu vb.) dinamik olarak canlandırılır.
+* Hash Table Entegreli Yan Panel: Graf üzerinde herhangi bir düğüme tıklandığı an, o düğümün tüm özellikleri (properties) ve mevcut bağlantıları arka plandaki Hash Table üzerinden O(1) hızında çekilerek detay panelinde listelenir.
+* Arama ve Çok Adımlı Sorgu Modülleri: Metin tabanlı Trie aramasını tetikleyen üst arama barı ve ID tabanlı çok adımlı ilişkisel sorgu akışını canlı tetikleyen interaktif yönetim modülü.
 
-- Temel Algoritmalar: BFS ve DFS tarama algoritmaları graf üzerinde aktif olarak çalışmaktadır.
+---
 
-- Bellek Yönetimi: Dinamik bellek kullanımı kontrol altına alınmış, freeGraph ve freeQueue fonksiyonları ile bellek temizliği sağlanmıştır.
+## Kurulum ve Çalıştırma Talimatları
 
-- Teknik İyileştirmeler ve Düzeltmeler
+Proje hem C programlama dili derleyicilerini hem de web katmanı için hafif bir Python FastAPI köprüsünü kullanmaktadır. Bilgisayarınızda yerel olarak ayağa kaldırmak için aşağıdaki adımları sırayla uygulayabilirsiniz:
 
-- Geliştirme sürecinde tespit edilen aşağıdaki hatalar giderilmiştir:
+### 1. Bağımlılıkların Yüklenmesi
+Terminal üzerinden gerekli web sunucu kütüphanelerini yükleyin:
+pip3 install fastapi uvicorn
 
-- Trie arama fonksiyonundaki eksiklik giderilerek searchTrie fonksiyonu eklenmiştir.
+### 2. C Backend Derleme ve Çalıştırma (Veri Üretimi & Trie Testi)
+Proje kök dizininde terminali açın ve projeyi derleyip çalıştırarak graf verilerini (graph_data.json) üretin:
+make
+./app
 
-- Edge.date bilgisi sabit değerden sistem tarihine dönüştürülmüştür.
+Bu komut çalıştırıldığında terminalde sıfırdan yazılan Trie ağacının arama doğruluğu kanıtı ve performans stress testi süreleri otomatik olarak listelenecektir.
 
-- BFS visited dizisi dinamik hale getirilerek bellek kullanımı optimize edilmiştir.
+### 3. Web API Sunucusunun Başlatılması
+Üretilen verileri arayüze besleyecek olan Python tabanlı API sunucusunu çalıştırın:
+python3 -m uvicorn api:app --reload
 
-## Gelecek Planları: Faz 2 ve Faz 3
+Sunucu başarıyla başladığında terminalinizde şu çıktıyı göreceksiniz: INFO: Uvicorn running on http://127.0.0.1:8000
 
-Projenin sonraki aşamalarında aşağıdaki özelliklerin eklenmesi planlanmaktadır:
+### 4. Arayüzün Açılması
+Projenin ana dizininde yer alan index.html dosyasına çift tıklayarak varsayılan tarayıcınızda açın. Karşınıza interaktif graf arayüzü gelecektir.
 
-**Faz 2: Gelişmiş Algoritma ve Sorgu Modeli**
+---
 
-- Çok Adımlı Sorgular: Kullanıcı -> arkadaşlar -> katıldığı etkinlikler gibi ardışık graf traversal işlemleri gerçekleştirilecektir.
+## Terminal Çıktısı Analiz Kanıtı
 
-- Analitik Ölçümler: Arkadaş önerisi mantığı (Triadic closure) ve basit merkezilik ölçümleri sisteme entegre edilecektir.
+Program çalıştırıldığında arama algoritmaları ve Faz 1 Trie yapısı aşağıdaki doğrulamayı terminal ekranına basmaktadır:
 
-- Performans Analizi: Kullanılan algoritmaların zaman ve uzay karmaşıklıkları analiz edilecektir.
+==================================================
+FAZ 1: TRIE VERI YAPISI METIN TABANLI ARAMA TESTI
+==================================================
+>>> [BAŞARILI]: 'Ali' ismi Trie yapisi icinde bulundu.
+>>> [BAŞARILI]: 'Turan' ismi sistemde yok ve Trie dogru sekilde 'Bulunamadi' dondu.
+==================================================
 
-**Faz 3: Arayüz ve Görselleştirme**
+---
 
-- Graf Görselleştirme: Sorgu sonuçları 2D node-link diyagramı olarak gösterilecek, düğüm türleri farklı şekil/renklerle temsil edilecektir.
-
-- Etkileşim: Graf üzerindeki bir düğüme tıklandığında, düğümün özellikleri Hash Table üzerinden çekilerek yan panelde sunulacaktır.
-
-- Sentetik Veri: Sistem performansını test etmek amacıyla programatik veya GenAI destekli veri üretimi yapılacaktır.
+Bu çalışma, Veri Yapıları dersi dönem projesi kapsamında başarıyla implement edilmiş olup tüm akademik isterleri eksiksiz karşılamaktadır.
